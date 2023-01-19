@@ -67,7 +67,7 @@ find . -type f -exec \
     {} \;
 find . -type f -exec \
     sed -i -e \
-        's/Universität Tübingen, DKFZ, EMBL, and Universität zu Köln/Universität Tübingen, DKFZ, EMBL, and Universität zu Köln/g' \
+        's/Universität Tübingen, DKFZ and EMBL/Universität Tübingen, DKFZ, EMBL, and Universität zu Köln/g' \
     {} \;
 
 echo "Updating docker-in-docker feature..."
