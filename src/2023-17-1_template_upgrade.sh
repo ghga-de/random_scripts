@@ -65,6 +65,10 @@ find . -type f -exec \
     sed -i -e \
         's/Copyright 2021 - 2022 Universität/Copyright 2021 - 2023 Universität/g' \
     {} \;
+find . -type f -exec \
+    sed -i -e \
+        's/Universität Tübingen, DKFZ, EMBL, and Universität zu Köln/Universität Tübingen, DKFZ, EMBL, and Universität zu Köln/g' \
+    {} \;
 
 echo "Updating docker-in-docker feature..."
 perl -i -pe \
