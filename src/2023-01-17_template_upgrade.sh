@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 if [ ! -f ./scripts/update_template_files.py ]; then
 
     echo "Upgrading to new update_template_files script..."

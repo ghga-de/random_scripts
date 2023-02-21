@@ -1,11 +1,31 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
-// https://github.com/microsoft/vscode-dev-containers/tree/v0.177.0/containers/python-3-postgres
-// Update the VARIANT arg in docker-compose.yml to pick a Python version: 3, 3.8, 3.7, 3.6
-{
-	"name": "Python 3 & PostgreSQL",
-	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
-	"workspaceFolder": "/workspace",
+#!/bin/bash
+
+# Copyright 2023 Universität Tübingen, DKFZ and EMBL
+# for the German Human Genome-Phenome Archive (GHGA)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+echo "Updating devcontainer.json VS Code customizations..."
+perl -i -pe \
+  'BEGIN{undef $/;} s|
+	// Set \*default\* container specific settings.json values on container create.
+	"settings": \{
+		.*
+	\},
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": \[
+		.*
+	\],|
 	"customizations": {
 		"vscode": {
 			// Set *default* container specific settings.json values on container create.
@@ -73,17 +93,4 @@
 				"editorconfig.editorconfig"
 			]
 		}
-	},
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [5000, 5432],
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "dev_install",
-	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "vscode",
-	"features": {
-		"docker-in-docker": {
-			"version": "latest",
-			"moby": true
-		}
-	}
-}
+	},|ms' .devcontainer/devcontainer.json
