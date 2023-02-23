@@ -15,18 +15,6 @@
 						"path": "/bin/bash"
 					}
 				},
-				"sqltools.connections": [
-					{
-						"name": "Container database",
-						"driver": "PostgreSQL",
-						"previewLimit": 50,
-						"server": "localhost",
-						"port": 5432,
-						"database": "postgres",
-						"username": "postgres",
-						"password": "postgres"
-					}
-				],
 				"python.pythonPath": "/usr/local/bin/python",
 				"python.languageServer": "Pylance",
 				"python.linting.enabled": true,
