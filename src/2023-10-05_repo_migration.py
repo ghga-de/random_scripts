@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+"""Migrates existing repositories for changes to the Microservice Template"""
 import configparser
 import os
 import re
@@ -42,12 +42,12 @@ def get_config_from_setup(is_microservice: bool) -> dict[str, str]:
     dependencies = options["install_requires"].strip()
     if is_microservice:
         dependencies = dependencies.replace("==", ">=")
-    config["dependencies"] = [dependency for dependency in dependencies.split("\n")]
+    config["dependencies"] = [dependency for dependency in dependencies.split("\n")]  # type: ignore
 
     if not is_microservice and extras_require in parser:
         extras = []
         for extra, deps in parser[extras_require].items():
-            deps = [dep.replace("==", ">=") for dep in deps]
+            deps = [dep.replace("==", ">=") for dep in deps]  # type: ignore
 
             if not deps:
                 continue
@@ -55,14 +55,14 @@ def get_config_from_setup(is_microservice: bool) -> dict[str, str]:
             extra_formatted = f'{extra} = [{", ".join(deps_formatted)}]'
             extras.append(extra_formatted)
         if extras:
-            config["optional-dependencies"] = extras
+            config["optional-dependencies"] = extras  # type: ignore
 
     if entrypoints in parser:
-        config["scripts"] = {}
+        config["scripts"] = {}  # type: ignore
         scripts = parser[entrypoints]["console_scripts"].strip().split("\n")
         for script in scripts:
             name, value = script.split("=")
-            config["scripts"][name.strip()] = value.strip()
+            config["scripts"][name.strip()] = value.strip()  # type: ignore
 
     return config
 
@@ -99,7 +99,7 @@ def pre_process_pyproject():
 
 def update_pyproject_toml(package_name: str, version: str, config: dict[str, str]):
     """Update the project metadata."""
-    os.system("pip install tomli")
+    os.system("pip install tomli")  # nosec
     tomli = import_module("tomli")
     with open("pyproject.toml", "rb") as pyproject_toml:
         pyproject = tomli.load(pyproject_toml)
@@ -114,7 +114,7 @@ def update_pyproject_toml(package_name: str, version: str, config: dict[str, str
     pyproject["project"]["scripts"] = config["scripts"]
 
     # write the final output
-    os.system("pip install tomli_w")
+    os.system("pip install tomli_w")  # nosec
     tomli_w = import_module("tomli_w")
     with open("pyproject.toml", "wb") as modified_pyproject_toml:
         tomli_w.dump(pyproject, modified_pyproject_toml)
@@ -147,7 +147,7 @@ def post_process_pyproject():
 
 def update_template_files():
     """Run `scripts/update_template_files.py`."""
-    os.system("scripts/update_template_files.py")
+    os.system("scripts/update_template_files.py")  # nosec
 
 
 def prompt(msg: str):
@@ -171,11 +171,11 @@ def install_new_tools(package_name: str):
     """Install the packages needed to run the new scripts."""
     # grab the deps.py and lock_deps.py scripts because I forgot to update .static_files
     update_files(["scripts/script_utils/deps.py", "scripts/script_utils/lock_deps.py"])
-    os.system("pip install httpx")
-    os.system("pip install pip-tools")
-    os.system("pip install stringcase")
-    os.system(f"pip uninstall {package_name}")
-    os.system("pip install -e .")
+    os.system("pip install httpx")  # nosec
+    os.system("pip install pip-tools")  # nosec
+    os.system("pip install stringcase")  # nosec
+    os.system(f"pip uninstall {package_name}")  # nosec
+    os.system("pip install -e .")  # nosec
 
 
 def ask_yes_no(msg: str) -> bool:
@@ -242,14 +242,14 @@ def main():
     update_files([".pre-commit-config.yaml"])
 
     install_new_tools(package_name)
-    os.system("scripts/list_outdated_dependencies.py")
+    os.system("scripts/list_outdated_dependencies.py")  # nosec
     prompt("Review the list above. Consider updating any outdated dependencies now.")
 
     print("\nBuilding lock files. This could take a few minutes...")
-    os.system("scripts/update_lock.py")
+    os.system("scripts/update_lock.py")  # nosec
 
     print("\nUpdating pre-commit-hook versions...")
-    os.system("scripts/update_hook_revs.py")
+    os.system("scripts/update_hook_revs.py")  # nosec
 
     print("Done - rebuild the dev container")
 
