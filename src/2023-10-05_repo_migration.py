@@ -3,6 +3,7 @@
 import configparser
 import os
 import re
+import shutil
 from importlib import import_module
 
 from scripts.get_package_name import get_package_name
@@ -42,7 +43,7 @@ def get_config_from_setup(is_microservice: bool) -> dict[str, str]:
     dependencies = options["install_requires"].strip()
     if is_microservice:
         dependencies = dependencies.replace("==", ">=")
-    config["dependencies"] = [dependency for dependency in dependencies.split("\n")]  # type: ignore
+    config["dependencies"] = dependencies.splitlines()  # type: ignore
 
     if not is_microservice and extras_require in parser:
         extras = []
@@ -59,7 +60,7 @@ def get_config_from_setup(is_microservice: bool) -> dict[str, str]:
 
     if entrypoints in parser:
         config["scripts"] = {}  # type: ignore
-        scripts = parser[entrypoints]["console_scripts"].strip().split("\n")
+        scripts = parser[entrypoints]["console_scripts"].strip().splitlines()
         for script in scripts:
             name, value = script.split("=")
             config["scripts"][name.strip()] = value.strip()  # type: ignore
@@ -74,7 +75,8 @@ def update_init(package_name: str, version: str):
 
     content = re.sub(
         pattern=rf"__version__\s*=\s*\"{version}\"",
-        repl="from importlib.metadata import version\n\n__version__ = version(__package__)",
+        repl="from importlib.metadata import version\n\n"
+        "__version__ = version(__package__)",
         string=content,
     )
     with open(f"./src/{package_name}/__init__.py", "w", encoding="utf-8") as init_write:
@@ -160,11 +162,16 @@ def prompt(msg: str):
 
 
 def delete(filename: str):
-    """Remove the given file."""
+    """Remove the given file or directory."""
     try:
-        os.remove(filename)
-    except:
+        if os.path.isdir(filename):
+            shutil.rmtree(filename)
+        else:
+            os.remove(filename)
+    except OSError:
         print(f"Skipped deleting {filename} because it doesn't exist")
+    else:
+        print(f"Deleted {filename}")
 
 
 def install_new_tools(package_name: str):
@@ -208,7 +215,7 @@ def fix_requirements_dev():
 
 
 def main():
-    """Apply all needed changes to bring the repo in line with latest template version."""
+    """Apply all needed changes to bring repo in line with latest template version."""
     is_microservice = ask_yes_no("Is this a microservice (i.e. not a library?) (y/n)")
     package_name = get_package_name()
     version = get_version_from_init(f"{package_name}/__init__.py")
@@ -240,6 +247,11 @@ def main():
 
     delete("./.pre-commit-config.yaml")
     update_files([".pre-commit-config.yaml"])
+
+    delete(".mypy_cache")
+    delete(".pytest_cache")
+    delete(f"{package_name}.egg-info")
+    delete(package_name)
 
     install_new_tools(package_name)
     os.system("scripts/list_outdated_dependencies.py")  # nosec
