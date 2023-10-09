@@ -17,19 +17,6 @@ ARG INSTALL_NODE="true"
 ARG NODE_VERSION="lts/*"
 RUN if [ "${INSTALL_NODE}" = "true" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
 
-# Install additional OS packages.
-RUN apt update \
-    && export DEBIAN_FRONTEND=noninteractive \
-    && apt -y install --no-install-recommends postgresql-client-common
 
 # Copy install and launcher script to bin:
 COPY ./dev_install /bin
-
-# make docker in docker work:
-# (https://github.com/microsoft/vscode-dev-containers/blob/main/script-library/docs/docker-in-docker.md#script-use)
-COPY library-scripts/*.sh /tmp/library-scripts/
-ENV DOCKER_BUILDKIT=1
-RUN apt-get update && /bin/bash /tmp/library-scripts/docker-in-docker-debian.sh
-ENTRYPOINT ["/usr/local/share/docker-init.sh"]
-VOLUME [ "/var/lib/docker" ]
-CMD ["sleep", "infinity"]
