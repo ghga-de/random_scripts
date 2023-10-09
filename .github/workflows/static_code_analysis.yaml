@@ -9,10 +9,10 @@ jobs:
     env:
       REL_SRC_DIR_PATH: ./src
     steps:
-      - uses: actions/checkout@v2.4.2
+      - uses: actions/checkout@v4
 
       - name: Set up Python 3.9
-        uses: actions/setup-python@v3.1.2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
 
@@ -20,31 +20,21 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - uses: pre-commit/action@v2.0.3
+      - uses: pre-commit/action@v3
+        env:
+          SKIP: no-commit-to-branch
+
+      - name: ruff
+        uses: chartboost/ruff-action@v1
 
       - name: black
         run: |
           black --check .
 
-      - name: isort
-        run: |
-          isort --check --profile black .
-
       - name: mypy
         run: |
-          mypy \
-            --show-error-codes \
-            --disable-error-code import \
-            "${REL_SRC_DIR_PATH}"
+          mypy .
 
-      - name: pylint
+      - name: Check license header and file
         run: |
-          pylint "${REL_SRC_DIR_PATH}"
-
-      - name: flake8
-        run: |
-          flake8 --config .flake8
-
-      - name: bandit
-        run: |
-          bandit -r "${REL_SRC_DIR_PATH}"
+          ./scripts/license_checker.py
